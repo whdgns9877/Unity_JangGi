@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 8561968423523421325}
   - component: {fileID: 4764328773265236113}
   - component: {fileID: 1666856939524433171}
-  - component: {fileID: -5484696331079964410}
   m_Layer: 5
   m_Name: Cho_Zzol
   m_TagString: Untagged
@@ -103,15 +102,3 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &-5484696331079964410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6296512685016617405}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26d8a1870b8ecb248a15701f6a669a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

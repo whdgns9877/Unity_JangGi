@@ -6,12 +6,13 @@ using UnityEngine.EventSystems;
 
 public class DroppableUI : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPointerExitHandler
 {
+    #region 보드에 필요한 정보들
     public int myColIdx;
     public int myRowIdx;
     private Image image;
     private RectTransform rect;
-
     public bool CanDrop { get; set; }
+    #endregion
 
     private void Awake()
     {

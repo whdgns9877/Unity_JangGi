@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    #region 컴포넌트와 멤버변수
     // 보드인덱스들의 최대 최소 값을 const 상수값으로 지정
     const int BOARD_MINVALUE_ROW_AND_COL = 0;
     const int BOARD_MAXVALUE_ROW = 8;
@@ -24,7 +25,9 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private string pickedSoldier = null; // 플레이어가 드래그를 시작하였을때 어느 기물인지를 저장할 string
     private int curPosColInBoard = 0;    // 현재 자기자신(기물) 의 행이 몇행인지 저장할 변수
     private int curPosRowInBoard = 0;    // 현재 자기자신(기물) 의 열이 몇열인지 저장할 변수
+    #endregion
 
+    // Awake 함수를 통해 해당 기물 정보 초기화
     private void Awake()
     {
         // 각 변수들에 해당하는 타입을 넣는다
@@ -146,9 +149,11 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 break;
 
             case "Han_Cha":
+                ChaLogic();
                 break;
 
             case "Han_Po":
+                PoLogic();
                 break;
 
             case "Han_Ma":
@@ -281,6 +286,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         else ++curPosColInBoard;
     }
 
+    // 마 의 움직임 로직
     private void MaLogic()
     {
         // 현재 위치 기준 윗방향 체크
@@ -402,6 +408,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
     }
 
+    // 상 의 움직임 로직
     private void SangLogic()
     {
         // 현재 위치 기준 윗방향 체크
@@ -578,8 +585,346 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
         }
     }
+    
+    // 차 의 움직임 로직
+    private void ChaLogic()
+    {
+        // 차의 현재위치 기준으로 위쪽을 맨 위 보드까지 검사한다
+        for(int i = 1; i <= curPosColInBoard; i++)
+        {
+            if(curPosColInBoard - i >= BOARD_MINVALUE_ROW_AND_COL)
+            {
+                // i값을 높여가며 한칸씩 확인해서 기물이 없으면 계속 그 위칸을 계산한다
+                if (CheckBoardHasNoChild(curPosColInBoard - i, curPosRowInBoard))
+                {
+                    // 검사한 보드가 비어있으면 canMoveBoardList에 해당 보드를 넣어주고 해당 위치의 보드의 CanDrop변수를 true로 설정
+                    canMoveBoardList.Add(boardPos[curPosColInBoard - i, curPosRowInBoard]);
+                    boardPos[curPosColInBoard - i, curPosRowInBoard].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+                else
+                    break;
+            }
+        }
 
-    // 매개변수로 행 과 열을 받아
+        // 차의 현재위치 기준으로 아래쪽을 맨 아래 보드까지 검사한다
+        for (int i = 1; i <= BOARD_MAXVALUE_COL - curPosColInBoard; i++)
+        {
+            if (curPosColInBoard + i <= BOARD_MAXVALUE_COL)
+            {
+                if (CheckBoardHasNoChild(curPosColInBoard + i, curPosRowInBoard))
+                {
+                    canMoveBoardList.Add(boardPos[curPosColInBoard + i, curPosRowInBoard]);
+                    boardPos[curPosColInBoard + i, curPosRowInBoard].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+                else
+                    break;
+            }
+        }
+
+        // 차의 현재위치 기준으로 왼쪽을 맨 왼 보드까지 검사한다
+        for (int i = 1; i <= curPosRowInBoard; i++)
+        {
+            if (curPosRowInBoard - i >= BOARD_MINVALUE_ROW_AND_COL)
+            {
+                // i값을 높여가며 한칸씩 확인해서 기물이 없으면 계속 그 위칸을 계산한다
+                if (CheckBoardHasNoChild(curPosColInBoard, curPosRowInBoard - i))
+                {
+                    // 검사한 보드가 비어있으면 canMoveBoardList에 해당 보드를 넣어주고 해당 위치의 보드의 CanDrop변수를 true로 설정
+                    canMoveBoardList.Add(boardPos[curPosColInBoard, curPosRowInBoard - i]);
+                    boardPos[curPosColInBoard, curPosRowInBoard - i].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+                else
+                    break;
+            }
+        }
+
+        // 차의 현재위치 기준으로 오른쪽을 맨 오른 보드까지 검사한다
+        for (int i = 1; i <= BOARD_MAXVALUE_ROW - curPosRowInBoard; i++)
+        {
+            if (curPosRowInBoard + i <= BOARD_MAXVALUE_COL)
+            {
+                // i값을 높여가며 한칸씩 확인해서 기물이 없으면 계속 그 위칸을 계산한다
+                if (CheckBoardHasNoChild(curPosColInBoard, curPosRowInBoard + i))
+                {
+                    // 검사한 보드가 비어있으면 canMoveBoardList에 해당 보드를 넣어주고 해당 위치의 보드의 CanDrop변수를 true로 설정
+                    canMoveBoardList.Add(boardPos[curPosColInBoard, curPosRowInBoard + i]);
+                    boardPos[curPosColInBoard, curPosRowInBoard + i].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+                else
+                    break;
+            }
+        }
+
+        // 차의 현재위치가 궁 안일때의 로직
+        // 궁 안에서는 모든 위치에서 중앙에 가능하므로 해당보드에
+        // 기물이 있는지 확인 후 없으면 리스트들에 추가해준다
+        if (gameObject.GetComponentInParent<DroppableUI>().CompareTag("KingPalace"))
+        {
+            if (CheckBoardHasNoChild(8,4) && curPosColInBoard != 8 && curPosRowInBoard != 4)
+            {
+                canMoveBoardList.Add(boardPos[8, 4]);
+                boardPos[8, 4].gameObject.GetComponent<DroppableUI>().CanDrop = true; 
+            }
+        }
+
+        // 현재 위치가 7,3 (궁에서의 왼쪽 위)
+        if (curPosColInBoard == 7 && curPosRowInBoard == 3)
+        {
+            // 이동 가능 범위에 기물이 있는지 확인하고
+            // 해당 보드가 비어있으면 canMoveBoardList와 boardPos에 해당 보드를 추가한다
+            // 궁에서의 오른쪽 아래 위치
+            if (CheckBoardHasNoChild(9, 5))
+            {
+                canMoveBoardList.Add(boardPos[9, 5]);
+                boardPos[9, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+        }
+
+        // 현재 위치가 7,5 (궁에서의 오른쪽 위)
+        if (curPosColInBoard == 7 && curPosRowInBoard == 5)
+        {
+            // 이동 가능 범위에 기물이 있는지 확인하고
+            // 해당 보드가 비어있으면 canMoveBoardList와 boardPos에 해당 보드를 추가한다
+            // 궁에서의 왼쪽 아래 위치
+            if (CheckBoardHasNoChild(9, 3))
+            {
+                canMoveBoardList.Add(boardPos[9, 3]);
+                boardPos[9, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+        }
+
+        // 현재 위치가 9,3 (궁에서의 왼쪽 아래)
+        if (curPosColInBoard == 9 && curPosRowInBoard == 3)
+        {
+            // 이동 가능 범위에 기물이 있는지 확인하고
+            // 해당 보드가 비어있으면 canMoveBoardList와 boardPos에 해당 보드를 추가한다
+            // 궁에서의 오른쪽 위 위치
+            if (CheckBoardHasNoChild(7, 5))
+            {
+                canMoveBoardList.Add(boardPos[7, 5]);
+                boardPos[7, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+        }
+
+        // 현재 위치가 9,3 (궁에서의 오른쪽 아래)
+        if (curPosColInBoard == 9 && curPosRowInBoard == 5)
+        {
+            // 이동 가능 범위에 기물이 있는지 확인하고
+            // 해당 보드가 비어있으면 canMoveBoardList와 boardPos에 해당 보드를 추가한다
+            // 궁에서의 왼쪽 위 위치
+            if (CheckBoardHasNoChild(7, 3))
+            {
+                canMoveBoardList.Add(boardPos[7, 3]);
+                boardPos[7, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+        }
+
+        // 현재 위치가 8,4 (궁의 중앙)
+        if(curPosColInBoard == 8 && curPosRowInBoard == 4)
+        {
+            // 궁에서 왼쪽 위
+            if (CheckBoardHasNoChild(7, 3))
+            {
+                canMoveBoardList.Add(boardPos[7, 3]);
+                boardPos[7, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+
+            // 궁에서 오른쪽 위
+            if (CheckBoardHasNoChild(7, 5))
+            {
+                canMoveBoardList.Add(boardPos[7, 5]);
+                boardPos[7, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+
+            // 궁에서 왼쪽 아래
+            if (CheckBoardHasNoChild(9, 3))
+            {
+                canMoveBoardList.Add(boardPos[9, 3]);
+                boardPos[9, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+
+            // 궁에서 오른쪽 아래
+            if (CheckBoardHasNoChild(9, 5))
+            {
+                canMoveBoardList.Add(boardPos[9, 5]);
+                boardPos[9, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+            }
+        }
+    }
+
+    // 포 의 움직임 로직
+    private void PoLogic()
+    {
+        // 포의 현재 위치에서 위쪽을 맨 위 보드까지 검사
+        for(int i = 1; i <= curPosColInBoard; i++)
+        {
+            if(curPosColInBoard - i >= BOARD_MINVALUE_ROW_AND_COL)
+            {
+                // i값을 높여가며 한칸씩 확인해서 기물이 없으면 계속 그 위칸을 계산한다
+                // 검사한 보드에 자식이 있다면 (포는 기물 하나를 뛰어넘어 이동해야한다)
+                // 그리고 해당 보드의 자식이 포가 아니라면 (포 끼리는 뛰어넘지 못한다)
+                if (!CheckBoardHasNoChild(curPosColInBoard - i, curPosRowInBoard)
+                    && !boardPos[curPosColInBoard - i, curPosRowInBoard].gameObject.GetComponentInChildren<DraggableUI>().gameObject.CompareTag("Po"))
+                {
+                    // 해당 위치에서부터 차로직의 위쪽부분을 적용한다
+                    // 차의 현재위치 기준으로 위쪽을 맨 위 보드까지 검사한다
+                    int pivotColBoard = curPosColInBoard - i;
+
+                    for (int j = 1; j <= BOARD_MAXVALUE_COL; j++)
+                    {
+                        if (pivotColBoard - j >= BOARD_MINVALUE_ROW_AND_COL)
+                        {
+                            // i값을 높여가며 한칸씩 확인해서 기물이 없으면 계속 그 위칸을 계산한다
+                            if (CheckBoardHasNoChild(pivotColBoard - j, curPosRowInBoard))
+                            {
+                                // 검사한 보드가 비어있으면 canMoveBoardList에 해당 보드를 넣어주고 해당 위치의 보드의 CanDrop변수를 true로 설정
+                                canMoveBoardList.Add(boardPos[pivotColBoard - j, curPosRowInBoard]);
+                                boardPos[pivotColBoard - j, curPosRowInBoard].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                    // 기준 위치에서 차 로직을 실행했으면 여기서 이제 위쪽 검사는 끝내야한다
+                    break;
+                }
+            }
+        }
+
+        // 포의 현재 위치에서 아래쪽을 맨 아래 보드까지 검사
+        for (int i = 1; i <= BOARD_MAXVALUE_COL - curPosColInBoard; i++)
+        {
+            if (curPosColInBoard + i <= BOARD_MAXVALUE_COL)
+            {
+                if (!CheckBoardHasNoChild(curPosColInBoard + i, curPosRowInBoard)
+                    && !boardPos[curPosColInBoard + i, curPosRowInBoard].gameObject.GetComponentInChildren<DraggableUI>().gameObject.CompareTag("Po"))
+                {
+                    int pivotColBoard = curPosColInBoard + i;
+
+                    for (int j = 1; j <= BOARD_MAXVALUE_COL; j++)
+                    {
+                        if (pivotColBoard + j <= BOARD_MAXVALUE_COL)
+                        {
+                            if (CheckBoardHasNoChild(pivotColBoard + j, curPosRowInBoard))
+                            {
+                                canMoveBoardList.Add(boardPos[pivotColBoard + j, curPosRowInBoard]);
+                                boardPos[pivotColBoard + j, curPosRowInBoard].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 포의 현재 위치에서 왼쪽을 맨 왼 보드까지 검사
+        for (int i = 1; i <= curPosRowInBoard; i++)
+        {
+            if (curPosRowInBoard - i >= BOARD_MINVALUE_ROW_AND_COL)
+            {
+                if (!CheckBoardHasNoChild(curPosColInBoard, curPosRowInBoard - i)
+                    && !boardPos[curPosColInBoard, curPosRowInBoard - i].gameObject.GetComponentInChildren<DraggableUI>().gameObject.CompareTag("Po"))
+                {
+                    int pivotRowBoard = curPosRowInBoard - i;
+
+                    for (int j = 1; j <= BOARD_MAXVALUE_ROW; j++)
+                    {
+                        if (pivotRowBoard - j >= BOARD_MINVALUE_ROW_AND_COL)
+                        {
+                            if (CheckBoardHasNoChild(curPosColInBoard, pivotRowBoard - j))
+                            {
+                                canMoveBoardList.Add(boardPos[curPosColInBoard, pivotRowBoard - j]);
+                                boardPos[curPosColInBoard, pivotRowBoard - j].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 포의 현재 위치에서 오른쪽을 맨 오른 보드까지 검사
+        for (int i = 1; i <= BOARD_MAXVALUE_ROW - curPosRowInBoard; i++)
+        {
+            if (curPosRowInBoard + i <= BOARD_MAXVALUE_ROW)
+            {
+                if (!CheckBoardHasNoChild(curPosColInBoard, curPosRowInBoard + i)
+                    && !boardPos[curPosColInBoard, curPosRowInBoard + i].gameObject.GetComponentInChildren<DraggableUI>().gameObject.CompareTag("Po"))
+                {
+                    int pivotRowBoard = curPosRowInBoard + i;
+
+                    for (int j = 1; j <= BOARD_MAXVALUE_ROW; j++)
+                    {
+                        if (pivotRowBoard + j <= BOARD_MAXVALUE_ROW)
+                        {
+                            if (CheckBoardHasNoChild(curPosColInBoard, pivotRowBoard + j))
+                            {
+                                canMoveBoardList.Add(boardPos[curPosColInBoard, pivotRowBoard + j]);
+                                boardPos[curPosColInBoard, pivotRowBoard + j].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 포의 궁 안에서의 처리
+        if (gameObject.GetComponentInParent<DroppableUI>().CompareTag("KingPalace"))
+        {
+            // 현재 포의 위치가 궁에서의 왼쪽 위
+            if(curPosColInBoard == 7 && curPosRowInBoard == 3)
+            {
+                // 궁에서 오른쪽 아래 보드에 기물이 없을때
+                if (CheckBoardHasNoChild(9, 5))
+                {
+                    canMoveBoardList.Add(boardPos[9, 5]);
+                    boardPos[9, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+            }
+
+            // 현재 포의 위치가 궁에서의 오른쪽 위
+            if (curPosColInBoard == 7 && curPosRowInBoard == 5)
+            {
+                // 궁에서 왼쪽 아래 보드에 기물이 없을때
+                if (CheckBoardHasNoChild(9, 3))
+                {
+                    canMoveBoardList.Add(boardPos[9, 3]);
+                    boardPos[9, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+            }
+
+            // 현재 포의 위치가 궁에서의 왼쪽 아래
+            if (curPosColInBoard == 9 && curPosRowInBoard == 3)
+            {
+                // 궁에서 오른쪽 위 보드에 기물이 없을때
+                if (CheckBoardHasNoChild(7, 5))
+                {
+                    canMoveBoardList.Add(boardPos[7, 5]);
+                    boardPos[7, 5].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+            }
+
+            // 현재 포의 위치가 궁에서의 오른쪽 아래
+            if (curPosColInBoard == 9 && curPosRowInBoard == 5)
+            {
+                // 궁에서 왼쪽 위 보드에 기물이 없을때
+                if (CheckBoardHasNoChild(7, 3))
+                {
+                    canMoveBoardList.Add(boardPos[7, 3]);
+                    boardPos[7, 3].gameObject.GetComponent<DroppableUI>().CanDrop = true;
+                }
+            }
+        }
+    }
+
+    // 매개변수로 행 과 열을 받아 해당보드에 자식이 없는지를 알려줄 함수
     private bool CheckBoardHasNoChild(int col, int row)
     {
         // 해당 위치의 보드에 자식이 있는지를 확인하여 null이면 자식오브젝트가 없는것이므로 true

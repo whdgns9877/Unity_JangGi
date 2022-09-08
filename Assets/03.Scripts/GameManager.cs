@@ -1,19 +1,21 @@
-using Photon.Pun;      //       ||
-using Photon.Realtime; // 포톤 사용을 위해
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Photon.Pun;      // 포톤 사용을 위해
+using Photon.Realtime; //      ||
 using UnityEngine.UI;  // UI 사용을 위해 
+
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
     #region 싱글턴
     static GameManager instance = null;
 
-    public static GameManager Instance 
+    public static GameManager Instance
     {
         get
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new GameManager();
             }
@@ -21,7 +23,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
     #endregion
-    public string gameVersion = "1.0";
+
     #region 각종 UI들에 연결할 변수들
     public Text ConnectionStatus;      // 현재 네트워크의 상태를 나타내는 텍스트
     public Text IDtext;                // 플레이어가 입력하여 넣을 닉네임 텍스트
@@ -44,6 +46,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public GameObject room;            // 방 생성시 사용할 프리팹
     public Transform GridTr;           // 방 생성시 위치를 정해줄 Transform
+    public string gameVersion = "1.0"; // 현재 게임 버전을 담은 string
     #endregion
 
     #region 게임 입장전 필요한 멤버변수들
@@ -71,43 +74,56 @@ public class GameManager : MonoBehaviourPunCallbacks
         PhotonNetwork.GameVersion = gameVersion;
         // 마스터(호스트)가 씬을 이동하면 클라이언트 플레이어들이 자동적으로 싱크된다
         PhotonNetwork.AutomaticallySyncScene = true;
+        // 방에서 게임씬으로 로딩될때 방에서 보내는 메세지를 받지 않는다
+        PhotonNetwork.IsMessageQueueRunning = false;
+        // 게임 매니저가 씬을 이동해도 파괴되지 않게 설정
+        DontDestroyOnLoad(gameObject);
     }
 
     void Update()
     {
-        // 현재 서버의 상태를 텍스트로 띄워줌
-        ConnectionStatus.text = "현재 서버 상태 : " + PhotonNetwork.NetworkClientState.ToString();
-
-        // 로비 판넬이 활성화 되어있을때
-        if(Lobby.activeInHierarchy)
+        if (SceneManager.GetActiveScene().name != "Game")
         {
-            // ID입력하는 인풋필드와 연결 버튼을 비활성화한다.
-            IDInputField.interactable = false;
-            connectButton.GetComponent<Button>().interactable = false;
-        }
-        // 반대 경우에는
-        else
-        {
-            // 인풋필드를 활성화하고
-            IDInputField.interactable = true;
+            // 현재 서버의 상태를 텍스트로 띄워줌
+            ConnectionStatus.text = "현재 서버 상태 : " + PhotonNetwork.NetworkClientState.ToString();
 
-            // 인풋필드가 비워져있으면 연결버튼 비활성화 
-            if (IDtext.text.Length == 0)
+            // 로비 판넬이 활성화 되어있을때
+            if (Lobby.activeInHierarchy)
+            {
+                // ID입력하는 인풋필드와 연결 버튼을 비활성화한다.
+                IDInputField.interactable = false;
                 connectButton.GetComponent<Button>().interactable = false;
-            // 인풋필드에 내용이 있으면 연결버튼 활성화
+            }
+            // 반대 경우에는
             else
-                connectButton.GetComponent<Button>().interactable = true;
+            {
+                // 인풋필드를 활성화하고
+                IDInputField.interactable = true;
+
+                // 인풋필드가 비워져있으면 연결버튼 비활성화 
+                if (IDtext.text.Length == 0)
+                    connectButton.GetComponent<Button>().interactable = false;
+                // 인풋필드에 내용이 있으면 연결버튼 활성화
+                else
+                    connectButton.GetComponent<Button>().interactable = true;
+            }
+
+            // 방 생성할때 또한 내용이 있을때만 생성버튼을 활성화
+            if (RoomInputFieldText.text.Length > 0) CreateButton.GetComponent<Button>().interactable = true;
+            else CreateButton.GetComponent<Button>().interactable = false;
+
+            // 방장일 경우에만 시작버튼을 활성화
+            if (PhotonNetwork.IsMasterClient)
+                StartButton.SetActive(true);
+            else
+                StartButton.SetActive(false);
         }
-
-        // 방 생성할때 또한 내용이 있을때만 생성버튼을 활성화
-        if (RoomInputFieldText.text.Length > 0) CreateButton.GetComponent<Button>().interactable = true;
-        else CreateButton.GetComponent<Button>().interactable = false;
-
-        // 방장일 경우에만 시작버튼을 활성화
-        if (PhotonNetwork.IsMasterClient)
-            StartButton.SetActive(true);
         else
-            StartButton.SetActive(false);
+        {
+            // 게임 씬 안에서의 GameManager 처리
+            // 게임씬 로딩 완료 후 방에서 보내는 메세지를 받는다
+            PhotonNetwork.IsMessageQueueRunning = true;
+        }
     }
 
     #region 콜백 함수
@@ -267,6 +283,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         playersNickNameInRoom[1].text = "도전자 : " + newPlayer.NickName;
+        clientPlayer = newPlayer;
     }
 
     // 다른 플레이어가 방을 떠났을때 호출되는 콜백함수
@@ -276,6 +293,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         playersNickNameInRoom[1].text = null;
     }
 
+    Player clientPlayer;
+
     // 방에서 나가고 실행되는 콜백함수
     public override void OnLeftRoom()
     {
@@ -283,6 +302,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         RoomPanel.SetActive(false);
         // 로그인 판넬은 활성화한다
         LoginPanel.SetActive(true);
+        // 마스터가 방을 나가고 콜백함수가 실행되면
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.LoadLevel("Main");
+        }
     }
 
     #endregion

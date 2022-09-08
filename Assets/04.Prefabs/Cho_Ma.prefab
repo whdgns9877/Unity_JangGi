@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 2671702945660742093}
   - component: {fileID: 6075881710942043691}
   - component: {fileID: 4506919684503284430}
+  - component: {fileID: -916312384316715161}
+  - component: {fileID: 7012441102433952860}
   m_Layer: 5
   m_Name: Cho_Ma
   m_TagString: Untagged
@@ -76,3 +78,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-916312384316715161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5642141315834508300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5ded49c93bb95f40ba07a627d77e5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!225 &7012441102433952860
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5642141315834508300}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6352318057110593716}
   - component: {fileID: 7848512674789608616}
   - component: {fileID: 4166976416080349482}
-  - component: {fileID: 4170257883863047135}
   m_Layer: 5
   m_Name: Han_Zzol
   m_TagString: Untagged
@@ -103,15 +102,3 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &4170257883863047135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8760763077209750916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26d8a1870b8ecb248a15701f6a669a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
