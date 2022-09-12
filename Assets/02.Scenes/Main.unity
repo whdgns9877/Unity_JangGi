@@ -194,9 +194,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '
-
-'
+  m_Text: 
 --- !u!222 &5434052
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1349,7 +1347,7 @@ GameObject:
   - component: {fileID: 541785830}
   - component: {fileID: 541785829}
   m_Layer: 5
-  m_Name: WarningPanel
+  m_Name: Panel_Warning
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1595,7 +1593,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB2C9\uB124\uC784\uC744 \uC785\uB825\uD558\uC138\uC694"
+  m_Text: "\uB2C9\uB124\uC784 ( 3 ~ 8 \uAE00\uC790)"
 --- !u!222 &630282827
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2254,7 +2252,7 @@ GameObject:
   - component: {fileID: 1057569642}
   - component: {fileID: 1057569640}
   m_Layer: 0
-  m_Name: Game Manager
+  m_Name: Photon Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2272,7 +2270,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9bde147b807bf945bd4d44362052743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameVersion: 1.0
   ConnectionStatus: {fileID: 5434051}
   IDtext: {fileID: 2089315723}
   Warningtext: {fileID: 1036019858}
@@ -2293,6 +2290,7 @@ MonoBehaviour:
   StartButton: {fileID: 436447722}
   room: {fileID: 3996030601837320532, guid: 8c67f1094f5ad4247bda718e03f2cb78, type: 3}
   GridTr: {fileID: 286719450}
+  gameVersion: 1.0
 --- !u!4 &1057569641
 Transform:
   m_ObjectHideFlags: 0
@@ -3253,7 +3251,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1009879503}
   m_HandleRect: {fileID: 1009879502}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

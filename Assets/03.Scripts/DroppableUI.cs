@@ -31,7 +31,7 @@ public class DroppableUI : MonoBehaviour, IPointerEnterHandler, IDropHandler, IP
     // 마우스 포인터가 현재 영역을 빠져나갈 때 1회 호출
     public void OnPointerExit(PointerEventData eventData)
     {
-        // 색상을 하얀색으로 변경
+        // 색상을 투명하게 변경
         image.color = new Color(0, 0, 0, 0);
     }
 

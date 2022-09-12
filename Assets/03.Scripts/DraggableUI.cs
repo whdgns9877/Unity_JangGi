@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Photon.Pun;      // 포톤 사용을 위해
+using Photon.Realtime; //      ||
 
-public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class DraggableUI : MonoBehaviourPunCallbacks,IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     #region 컴포넌트와 멤버변수
     // 보드인덱스들의 최대 최소 값을 const 상수값으로 지정
@@ -25,11 +27,17 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private string pickedSoldier = null; // 플레이어가 드래그를 시작하였을때 어느 기물인지를 저장할 string
     private int curPosColInBoard = 0;    // 현재 자기자신(기물) 의 행이 몇행인지 저장할 변수
     private int curPosRowInBoard = 0;    // 현재 자기자신(기물) 의 열이 몇열인지 저장할 변수
+
+    int showCanMoveImgIndex;             // 현재 자기자신(기물) 의 갈수 있는 위치에 띄울 이미지의 인덱스
+
+    PhotonView PV;                       // 포톤뷰 사용을 위해
     #endregion
 
     // Awake 함수를 통해 해당 기물 정보 초기화
     private void Awake()
     {
+        if (!IsMasterClient()) return;
+        PV = photonView;
         // 각 변수들에 해당하는 타입을 넣는다
         canvas = FindObjectOfType<Canvas>().transform;
         rect = GetComponent<RectTransform>();
@@ -38,7 +46,6 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 기물들이 드롭될수 있는 보드들을 담는 배열에 게임오브젝트의 이름이
         // Panel_Board인 것을 찾아 DroppableUI타입을 갖는 즉 보드들을 boards 배열에 넣는다
         boards = GameObject.Find("Panel_Board").GetComponentsInChildren<DroppableUI>();
-
         // 인자값을 위한 변수
         int index = 0;
 
@@ -83,7 +90,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         // 현재 스크린상의 마우스 위치를 UI 위치로 설정(UI가 마우스를 쫓아다니는 상태)
         rect.position = eventData.position;
-    }
+    }                                                                                                                                                                                                                                                                                                                 
 
     // 현재 오브젝트의 드래그를 종료할 때 1회 호출
     public void OnEndDrag(PointerEventData eventData)
@@ -91,6 +98,12 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 드래그를 시작하면 부모가 canvas로 설정되기 때문에
         // 드래그를 종료할 때 부모가 canvas이면 아이템 슬롯이 아닌 엉뚱한 곳에
         // 드롭을 했다는 뜻이기 때문에 드래그 직전에 소속되어 있던 곳으로 이동
+        PV.RPC("MoveSoldier", RpcTarget.MasterClient);
+    }
+
+    [PunRPC]
+    private void MoveSoldier()
+    {
         if (transform.parent == canvas)
         {
             // 마지막 소속되었던 previous의 자식으로 설정하고, 해당 위치로 설정
@@ -103,36 +116,47 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         canvasGroup.blocksRaycasts = true;
 
         // 이동 할때 구했던 정보들을 싹 정리해준다
-        ClearInfos();
+        PV.RPC("ClearInfos", RpcTarget.MasterClient);
 
         // 그리고 현재 자신의 위치를 자신이 속한 부모인 보드의 위치로 저장한다
         curPosColInBoard = GetComponentInParent<DroppableUI>().myColIdx;
         curPosRowInBoard = GetComponentInParent<DroppableUI>().myRowIdx;
     }
 
+    private bool IsMasterClient()
+    {
+        if (PhotonNetwork.LocalPlayer.IsMasterClient) return true;
+        else return false;
+    }
+
     // 정보를 지우는 로직
+    [PunRPC]
     private void ClearInfos()
     {
         // 내가 움직이려는 기물의 string을 비우고
         pickedSoldier = null;
+ 
         // 해당 기물들의 각 로직에따라 이동가능보드의 리스트의 수만큼
         // 반복문을 돌아서
         for (int i = 0; i < canMoveBoardList.Count; i++)
         {
             // 해당 보드의 게임오브젝트에 달려있는 DroppableUI의 CanDrop 변수를 false로 바꿔준다
             canMoveBoardList[i].gameObject.GetComponent<DroppableUI>().CanDrop = false;
+            canMoveBoardList[i].gameObject.transform.GetChild(showCanMoveImgIndex).gameObject.SetActive(false);
         }
+        // 인덱스 초기화
+        showCanMoveImgIndex = 0;
         // 변수를 바꿔준후에 리스트를 비운다
         canMoveBoardList.Clear();
 
-        // 해당 기물이 갈수 있는 위치에 임시적으로 생성해서 띄워주었던 오브젝트를
-        for (int i = 0; i < showObj.Count; i++)
-        {
-            // 삭제한다
-            Destroy(showObj[i].gameObject);
-        }
-        // 삭제 후에 해당 리스트를 비운다
-        showObj.Clear();
+        //// 해당 기물이 갈수 있는 위치에 임시적으로 생성해서 띄워주었던 오브젝트를
+        //for (int i = 0; i < showObj.Count; i++)
+        //{
+        //    // 삭제한다
+        //    Destroy(showObj[i].gameObject);
+        //}
+        //// 삭제 후에 해당 리스트를 비운다
+        //showObj.Clear();
     }
 
     // 각 기물들의 이름값을 통해 해당 기물들의
@@ -145,53 +169,65 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         switch (pickedSoldier)
         {
             case "Han_King":
-                KingAndSaLojic();
+                PV.RPC("KingAndSaLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 0;
                 break;
 
             case "Han_Cha":
-                ChaLogic();
+                PV.RPC("ChaLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 1;
                 break;
 
             case "Han_Po":
-                PoLogic();
+                PV.RPC("PoLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 2;
                 break;
 
             case "Han_Ma":
-                MaLogic();
+                PV.RPC("MaLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 3;
                 break;
 
             case "Han_Sang":
-                SangLogic();
+                PV.RPC("SangLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 4;
                 break;
 
             case "Han_Sa":
-                KingAndSaLojic();
+                PV.RPC("KingAndSaLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 5;
                 break;
 
             case "Han_Zzol":
-                ZzolLogic();
+                PV.RPC("ZzolLogic", RpcTarget.MasterClient);
+                showCanMoveImgIndex = 6;
                 break;
         }
         // 반투명 이미지를 생성하는 함수
-        CreateCanMovePosImage();
+        CreateCanMovePosImage(showCanMoveImgIndex);
     }
 
     // 반투명 이미지를 생성하는 함수
-    private void CreateCanMovePosImage()
+    private void CreateCanMovePosImage(int index)
     {
         // 로직에 따라 들어온 canMoveBoardList의 수만큼
         // 반복문을 돌아
         for (int i = 0; i < canMoveBoardList.Count; i++)
         {
-            // 해당 위치 전부에 자기자신의 gameObject를 생성하고
-            showObj.Add(Instantiate(gameObject, canMoveBoardList[i].transform));
-            // 생성한 클론들의 알파값을 0.3으로 하여 반투명하게 만든다
-            showObj[i].GetComponent<Image>().color = new Color(255, 255, 255, 0.3f);
+            canMoveBoardList[i].gameObject.transform.GetChild(index).gameObject.SetActive(true);
+            //GameObject[] ga = new GameObject[canMoveBoardList.Count];
+            //ga[i] = PhotonNetwork.Instantiate(gameObject.name, canMoveBoardList[i].transform.position, Quaternion.identity);
+            //ga[i].GetComponent<PhotonView>().ViewID = gameObject.GetComponent<PhotonView>().ViewID + 500 + i;
+            //// 해당 위치 전부에 자기자신의 gameObject를 생성하고
+            //showObj.Add(ga[i]);
+            //// 생성한 클론들의 알파값을 0.3으로 하여 반투명하게 만든다
+            //showObj[i].GetComponent<Image>().color = new Color(255, 255, 255, 0.3f);
         }
     }
 
     // 왕 과 사 의 움직임 로직
-    private void KingAndSaLojic()
+    [PunRPC]
+    private void KingAndSaLogic()
     {
         // 자신의 위치를 제외한 8방향의 보드들을 검사한다
         for (int dirX = -1; dirX <= 1; dirX++)
@@ -245,6 +281,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
 
     // 졸 의 움직임 로직
+    [PunRPC]
     private void ZzolLogic()
     {
         // 자기 자신의 위치기준으로 한칸 오른쪽이 범위 내 이면
@@ -287,6 +324,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
 
     // 마 의 움직임 로직
+    [PunRPC]
     private void MaLogic()
     {
         // 현재 위치 기준 윗방향 체크
@@ -409,6 +447,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
 
     // 상 의 움직임 로직
+    [PunRPC]
     private void SangLogic()
     {
         // 현재 위치 기준 윗방향 체크
@@ -585,8 +624,9 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
         }
     }
-    
+
     // 차 의 움직임 로직
+    [PunRPC]
     private void ChaLogic()
     {
         // 차의 현재위치 기준으로 위쪽을 맨 위 보드까지 검사한다
@@ -753,6 +793,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
 
     // 포 의 움직임 로직
+    [PunRPC]
     private void PoLogic()
     {
         // 포의 현재 위치에서 위쪽을 맨 위 보드까지 검사
@@ -925,6 +966,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     }
 
     // 매개변수로 행 과 열을 받아 해당보드에 자식이 없는지를 알려줄 함수
+    [PunRPC]
     private bool CheckBoardHasNoChild(int col, int row)
     {
         // 해당 위치의 보드에 자식이 있는지를 확인하여 null이면 자식오브젝트가 없는것이므로 true

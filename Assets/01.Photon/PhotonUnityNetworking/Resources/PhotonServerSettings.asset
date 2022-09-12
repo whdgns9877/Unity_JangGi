@@ -39,6 +39,21 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - CreateSoldiers
+  - SetMyPos
+  - ChaLogic
+  - CheckBoardHasNoChild
+  - ClearInfos
+  - CreateCanMovePosImage
+  - KingAndSaLogic
+  - MaLogic
+  - PoLogic
+  - SangLogic
+  - ShowCanMoveBoards
+  - ZzolLogic
+  - MoveSoldier
+  - SyncSoldierPos
+  - DropSoldier
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
