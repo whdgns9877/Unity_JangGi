@@ -10,7 +10,22 @@
 &nbsp;
 ### 드래그 & 드랍으로 장기 기물들을 이동시켜본다
 &nbsp;
-![image58](https://github.com/whdgns9877/Unity_JangGi/assets/49630123/560634fb-5cf3-4001-85cf-833fe365dd3b)
+![king](https://github.com/whdgns9877/Unity_JangGi/assets/49630123/e0fb630b-b409-4d52-b2b2-0c8c1a15e174)
+
+<table>
+  <tr>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/2075180d-35ad-4ba0-a37d-ace96abd5382" /></td>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/fa1fe370-548f-4f11-88a0-cca1eecb1b76" /></td>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/3de26acd-79c9-4ace-b127-fde261089adc" /></td>
+  <tr>
+    
+  <tr>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/f9cce126-eb7c-410f-9771-62263aa0e542" /></td>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/ab4f9510-7dc6-4a1d-9043-e26a126c853f" /></td>
+    <td><img alt="" src="https://github.com/whdgns9877/Unity_JangGi/assets/49630123/77a49f61-4520-4f3f-a49c-0f01325b11b6" /></td>
+  <tr>
+</table>
+
 &nbsp;
 
 ## 🔧 기술 스택
