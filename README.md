@@ -42,5 +42,5 @@
 
 &nbsp;
 
-🔗 [Development Log](https://blog.naver.com/whdgns9877, "Blog Link")
+🔗 [Development Log](https://blog.naver.com/whdgns9877/222862642654, "Blog Link")
 
