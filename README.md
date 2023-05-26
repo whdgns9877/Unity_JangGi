@@ -10,7 +10,7 @@
 &nbsp;
 ### 드래그 & 드랍으로 장기 기물들을 이동시켜본다
 &nbsp;
-![image41](https://github.com/whdgns9877/TeamProject-Amazing_Chicken_Chaser/assets/49630123/b8fd6302-4237-4e66-9889-c2b693df026a)
+![image58](https://github.com/whdgns9877/Unity_JangGi/assets/49630123/560634fb-5cf3-4001-85cf-833fe365dd3b)
 &nbsp;
 
 ## 🔧 기술 스택
